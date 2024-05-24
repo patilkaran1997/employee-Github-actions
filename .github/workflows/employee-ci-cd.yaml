@@ -1,1 +1,32 @@
+name: Build and Deploy to AWS ECR
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install MySQL client
+        run: sudo apt-get update && sudo apt-get install -y mysql-client
+      - name: Start MySQL Service
+        run: sudo systemctl start mysql
+      - name: Change MySQL Root Password
+        run: |
+          mysql -u root -proot -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'Cybage@123';"
+
+      - name: Grant Privileges to Root User
+        run: |
+          mysql -h localhost -u root -pCybage@123 -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;"
+      - name: Create Database
+        run: |
+          mysql -h localhost -u root -pCybage@123 -e "CREATE DATABASE employees;"
+      # Step 1: Checkout the repository code
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
